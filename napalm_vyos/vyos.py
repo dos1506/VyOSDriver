@@ -499,8 +499,7 @@ class VyOSDriver(NetworkDriver):
 
 
   def get_facts(self):
-    output = self._send_command("show version")
-    output = output.split("\n")
+    output = self._send_command("show version").split("\n")
   
     uptime_str = [line for line in output if "Uptime" in line][0]
     uptime = self.parse_uptime(uptime_str)
@@ -511,12 +510,17 @@ class VyOSDriver(NetworkDriver):
     sn_str = [line for line in output if "S/N" in line][0]
     snumber = self.parse_snumber(sn_str)
 
-    hostname = self._send_command("show host name").strip()
-    
-    fqdn = self._send_command("show host domain").strip()
+    output = self._send_command("show configuration")
+    config = vyattaconfparser.parse_conf(output)
 
-    output = self._send_command("show interfaces").split("\n")
-    iface_list = [line.split()[0] for line in output if "u/u" in line]
+    hostname = config["system"]["host-name"]
+
+    fqdn = config["system"]["domain-name"]    
+
+    iface_list = list()
+    for iface_type in config["interfaces"]:
+      for iface_name in config["interfaces"][iface_type]:
+        iface_list.append(iface_name) 
 
     facts = {
       "uptime"        : int(uptime),
