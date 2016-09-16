@@ -1,1 +1,5 @@
-This is NAPALM Driver for VyOS
+# NAPALM Driver for VyOS
+
+## Dependencies
+ - paramiko
+ - vyattaconfparser
