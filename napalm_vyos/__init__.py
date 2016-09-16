@@ -12,5 +12,5 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-"""napalm_skeleton package."""
+"""napalm_vyos package."""
 from vyos import VyOSDriver

@@ -71,7 +71,7 @@ class VyOSDriver(NetworkDriver):
     elif config is not None:
       self._new_config = config
     else:
-      raise MergeConfigException("Please specify configuration command")
+      raise MergeConfigException("no configuration found")
 
 
   def discard_config(self):
@@ -157,7 +157,7 @@ class VyOSDriver(NetworkDriver):
     Interface        IP Address                        S/L  Description
     ---------        ----------                        ---  -----------
     br0              -                                 u/D  
-    eth0             10.129.2.235/24                   u/u  Management 
+    eth0             192.168.1.1/24                   u/u  Management 
     eth1             192.168.1.2/24                    u/u  
     eth2             192.168.3.1/24                    u/u  foobar
                      192.168.2.2/24
@@ -168,6 +168,7 @@ class VyOSDriver(NetworkDriver):
 
     # Collect all interfaces' name and status
     match = re.findall("(\S+)\s+[:\-\d/\.]+\s+([uAD])/([uAD])", output_iface)
+
     # 'match' example:
     # [("br0", "u", "D"), ("eth0", "u", "u"), ("eth1", "u", "u")...]
     iface_state = {iface_name:{"State": state, "Link": link} for iface_name, state, link in match}
@@ -668,17 +669,18 @@ class VyOSDriver(NetworkDriver):
     if err is not "":
       ping_result["error"] = err
     else:
-      packet_info = output.split("\n")[-3]
-      packet_info = [x.strip() for x in packet_info.split()]
       # 'packet_info' example: 
       # ['5', 'packets', 'transmitted,' '5', 'received,' '0%', 'packet', 'loss,', 'time', '3997ms']
+      packet_info = output.split("\n")[-3]
+      packet_info = [x.strip() for x in packet_info.split()]
+
       sent = int(packet_info[0])
       received = int(packet_info[3])
       lost = sent - received  
 
-      rtt_info = output.split("\n")[-2]
       # 'rtt_info' example:
       # ["0.307/0.396/0.480/0.061"]
+      rtt_info = output.split("\n")[-2]
       match = re.search("([\d\.]+)/([\d\.]+)/([\d\.]+)/[\d\.]+", rtt_info)
       
       if match is not None:
@@ -699,18 +701,3 @@ class VyOSDriver(NetworkDriver):
       }
 
     return ping_result
-
-
-if __name__ == "__main__":
-  import os
-  import json
-  with open(os.environ["HOME"] + "/profiles.json") as f:
-    profiles = json.load(f)["profiles"] 
-
-  driver = VyOSDriver(profiles["vyos"]["ipv4"],
-                      profiles["vyos"]["username"],
-                      profiles["vyos"]["password"])
-  driver.open()
-  driver.load_merge_candidate("hoge.txt")
-  print driver.compare_config()
-  driver.close()
