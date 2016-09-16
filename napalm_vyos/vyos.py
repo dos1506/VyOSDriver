@@ -46,7 +46,10 @@ class VyOSDriver(NetworkDriver):
     self._password = password
     self._timeout  = timeout    
     self._device  = None
-    self._port = 22
+    if optional_args and optional_args.has_key('port'):
+        self._port = optional_args['port']
+    else:
+        self._port = 22
     self._new_config = None
     self._old_config = None
 
