@@ -218,6 +218,7 @@ class VyOSDriver(NetworkDriver):
 
   def get_arp_table(self):
     # 'age' is not implemented yet
+
     """
     'show arp' output example:
     Address                  HWtype  HWaddress           Flags Mask            Iface
@@ -260,6 +261,7 @@ class VyOSDriver(NetworkDriver):
      219.117.210.137 .GPS.            1 u   17   64  377   17.586  988068. 1652.00
      133.130.120.204 133.243.238.164  2 u   46   64  377    7.717  987996. 1669.77
     """
+
     output = self._send_command("ntpq -np", is_vyatta_op=False).split("\n")[2:-1]
 
     ntp_stats = list()
@@ -304,7 +306,8 @@ class VyOSDriver(NetworkDriver):
     return ntp_peers
 
   def get_bgp_neighbors(self):
-    # 'description', 'sent_prefixes' and 'received_prefixes' is not implemented yet
+    # 'description', 'sent_prefixes' and 'received_prefixes' are not implemented yet
+
     """
     'show ip bgp summary' output example:
     BGP router identifier 192.168.1.2, local AS number 64520
@@ -317,6 +320,7 @@ class VyOSDriver(NetworkDriver):
     192.168.1.3     4 64521    7132    7103        0    0    0 4d21h05m        0
     192.168.1.4     4 64522       0       0        0    0    0 never    Active
     """
+
     output = self._send_command("show ip bgp summary").split("\n")
 
     match = re.search(".* router identifier (\d+\.\d+\.\d+\.\d+), local AS number (\d+)", output[0])
@@ -328,7 +332,7 @@ class VyOSDriver(NetworkDriver):
     bgp_neighbor_data["global"]["router_id"] = router_id
     bgp_neighbor_data["global"]["peers"] = {}
 
-    # Delete the header and empty element
+    # delete the header and empty element
     bgp_info = [i.strip() for i in output[6:-3] if i is not ""]
 
     for i in bgp_info:
@@ -417,7 +421,8 @@ class VyOSDriver(NetworkDriver):
 
   def get_interfaces_counters(self):
     # 'rx_unicast_packet', 'rx_broadcast_packets', 'tx_unicast_packets', 
-    # 'tx_multicast_packets' and 'tx_broadcast_packets' is not implemented yet
+    # 'tx_multicast_packets' and 'tx_broadcast_packets' are not implemented yet
+
     """
     'show interfaces detail' output example:
     eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
@@ -583,6 +588,7 @@ class VyOSDriver(NetworkDriver):
       if len(iface) != 1:
 
         iface_name = iface[0]
+
         # Delete the "Interface" column
         iface = iface[1:-1]
         # Key initialization
@@ -622,7 +628,7 @@ class VyOSDriver(NetworkDriver):
 
       sshkeys = list()
 
-      # "extract the configuration which relates to 'user'"
+      # extract the configuration which relates to 'user'
       for line in [x for x in user_conf if user in x]:
 
         # "set system login user alice authentication encrypted-password 'abc'"
